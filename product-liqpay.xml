@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<product productid="liqpay" active="1">
+	<title>LiqPay Payment Gateway</title>
+	<description>LiqPay.com Payment Gateway</description>
+	<version>0.3</version>
+	<url><![CDATA[http://www.vbulletin.org/forum/misc.php?do=producthelp&pid=liqpay]]></url>
+	<versioncheckurl><![CDATA[http://www.vbulletin.org/forum/misc.php?do=productcheck&pid=liqpay]]></versioncheckurl>
+	<apm_releasedate>1240174800</apm_releasedate>
+	<apm_author>Dmitry Titov, Vitaly Puzrin</apm_author>
+	<apm_relatedurl />
+	<apm_extrainfo />
+	<apm_extraedit />
+	<dependencies>
+	</dependencies>
+	<codes>
+		<code version="0.1">
+			<installcode><![CDATA[$merchant_id   = array("type" => "text", "value" => "", "validate" => "string");
+$merchant_pass = array("type" => "text", "value" => "", "validate" => "string");
+
+$settings = array(
+  "merchant_id"   => $merchant_id,
+  "merchant_pass" => $merchant_pass,
+);
+
+$db->hide_errors(); 
+$db->query_write("
+  INSERT INTO
+    `" . TABLE_PREFIX . "paymentapi`
+  SET
+    `title`     = 'LiqPay',
+    `currency`  = 'uah,usd,eur,rur',
+    `recurring` = 0,
+    `classname` = 'liqpay',
+    `active`    = 0,
+    `settings`  = '" . $db->escape_string(serialize($settings)) . "'
+");
+$db->show_errors();]]></installcode>
+			<uninstallcode><![CDATA[$db->hide_errors(); 
+$db->query_write("DELETE FROM `" . TABLE_PREFIX . "paymentapi` WHERE `title` = 'LiqPay'");
+$db->show_errors();]]></uninstallcode>
+		</code>
+	</codes>
+	<templates>
+		<template name="subscription_payment_liqpay" templatetype="template" date="1237391626" username="Dimit" version=""><![CDATA[<input type="hidden" name="operation_xml" value="$operation_xml">
+<input type="hidden" name="signature" value="$signature">]]></template>
+		<template name="subscription_payment_notice" templatetype="template" date="1237820757" username="Dimit" version=""><![CDATA[<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+<tr>
+	<td class="tcat">$vbphrase[subscription_payment_notice_title]</td>
+</tr>
+<tr>
+	<td class="alt1">$subscription_payment_notice</td>
+</tr>
+</table>]]></template>
+	</templates>
+	<plugins>
+		<plugin active="1" executionorder="5">
+			<title>Cache Templates</title>
+			<hookname>cache_templates</hookname>
+			<phpcode><![CDATA[if (THIS_SCRIPT == 'payments')
+{
+  $globaltemplates[] = 'subscription_payment_liqpay';
+  $globaltemplates[] = 'subscription_payment_notice';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Payment return fix</title>
+			<hookname>init_startup</hookname>
+			<phpcode><![CDATA[if (defined('THIS_SCRIPT') AND THIS_SCRIPT == 'payments' AND $_GET['do'] == 'finish')
+{
+  $vbulletin->csrf_skip_list[] = '';
+}]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>LiqPay phrases</title>
+			<hookname>paidsub_order_start</hookname>
+			<phpcode><![CDATA[$vbphrase += array('liqpay' => 'LiqPay');
+
+$vbphrase['liqpay_order_instructions'] =
+  construct_phrase($vbphrase['liqpay_order_instructions'], $stylevar['imgdir_misc']);]]></phpcode>
+		</plugin>
+		<plugin active="1" executionorder="5">
+			<title>Show note to user</title>
+			<hookname>paidsub_start</hookname>
+			<phpcode><![CDATA[if ($_REQUEST['do'] == 'finish' AND $_REQUEST['method'] == 'liqpay')
+{
+  require_once(DIR . '/includes/paymentapi/class_liqpay.php');
+
+  $api_class = 'vB_PaidSubscriptionMethod_liqpay';
+  $apiobj    = new $api_class($vbulletin);
+
+  if (!$apiobj->verify_payment()
+      AND $apiobj->error_code == 'payment_verification_is_in_progress')
+  {
+    // show notice to user
+    $templatename = 'subscription_payment_notice';
+    $subscription_payment_notice = $vbphrase['liqpay_subscription_payment_notice'];
+  }
+  else
+  if ($apiobj->error_code == 'payment_failed')
+  {
+    // show notice to user
+    $templatename = 'subscription_payment_notice';
+    $subscription_payment_notice = $vbphrase['liqpay_subscription_payment_failed'];
+  }
+  else
+  {
+    $_REQUEST['do'] = 'list';
+  }
+}]]></phpcode>
+		</plugin>
+	</plugins>
+	<phrases>
+		<phrasetype name="Subscription Tools" fieldname="subscription">
+			<phrase name="liqpay_order_instructions" date="1237838325" username="Dimit" version=""><![CDATA[<a href="http://liqpay.com/" target="_blank"><img src="{1}/liqpay.png" border="0" /></a><br /><br />
+Для оплаты подписки через LiqPay нажмите на кнопку ниже и следуйте дальнейшим инструкциям.]]></phrase>
+			<phrase name="liqpay_subscription_payment_failed" date="1240239746" username="Dimit" version=""><![CDATA[Your payment has failed.]]></phrase>
+			<phrase name="liqpay_subscription_payment_notice" date="1237820994" username="Dimit" version=""><![CDATA[Your payment is in verification process.]]></phrase>
+			<phrase name="setting_liqpay_merchant_id_desc" date="1237390777" username="Dimit" version=""><![CDATA[See it in LiqPay merchant panel.]]></phrase>
+			<phrase name="setting_liqpay_merchant_id_title" date="1237389707" username="Dimit" version=""><![CDATA[Merchant ID]]></phrase>
+			<phrase name="setting_liqpay_merchant_pass_desc" date="1237390764" username="Dimit" version=""><![CDATA[See it in LiqPay merchant panel.]]></phrase>
+			<phrase name="setting_liqpay_merchant_pass_title" date="1237389752" username="Dimit" version=""><![CDATA[Merchant Password]]></phrase>
+			<phrase name="subscription_payment_notice_title" date="1237821023" username="Dimit" version=""><![CDATA[Attention]]></phrase>
+		</phrasetype>
+	</phrases>
+	<options>
+	</options>
+	<helptopics>
+	</helptopics>
+	<cronentries>
+	</cronentries>
+	<faqentries>
+	</faqentries>
+	<templateedits>
+	</templateedits>
+</product>
