@@ -112,8 +112,8 @@ $vbphrase['liqpay_order_instructions'] =
 	</plugins>
 	<phrases>
 		<phrasetype name="Subscription Tools" fieldname="subscription">
-			<phrase name="liqpay_order_instructions" date="1237838325" username="Dimit" version=""><![CDATA[<a href="http://liqpay.com/" target="_blank"><img src="{1}/liqpay.png" border="0" /></a><br /><br />
-Для оплаты подписки через LiqPay нажмите на кнопку ниже и следуйте дальнейшим инструкциям.]]></phrase>
+			<phrase name="liqpay_order_instructions" date="1251562280" username="Vitaly" version=""><![CDATA[<a href="http://liqpay.com/" target="_blank"><img src="{1}/liqpay.png" border="0" /></a><br /><br />
+To make payment via <a href="http://liqpay.com/" target="_blank">LiqPay</a>, press the button below and follow instructions. Note, if you never used LiqPay before, they will call you after first payment, to verify details.]]></phrase>
 			<phrase name="liqpay_subscription_payment_failed" date="1240239746" username="Dimit" version=""><![CDATA[Your payment has failed.]]></phrase>
 			<phrase name="liqpay_subscription_payment_notice" date="1237820994" username="Dimit" version=""><![CDATA[Your payment is in verification process.]]></phrase>
 			<phrase name="setting_liqpay_merchant_id_desc" date="1237390777" username="Dimit" version=""><![CDATA[See it in LiqPay merchant panel.]]></phrase>
