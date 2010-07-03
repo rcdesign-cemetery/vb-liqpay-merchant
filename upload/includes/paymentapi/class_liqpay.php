@@ -3,7 +3,7 @@
 || #################################################################### ||
 || # LiqPay Payment API 0.3                                           # ||
 || # ---------------------------------------------------------------- # ||
-|| # Copyright © 2009 Dmitry Titov, Vitaly Puzrin.                    # ||
+|| # Copyright ï¿½ 2009 Dmitry Titov, Vitaly Puzrin.                    # ||
 || # All Rights Reserved.                                             # ||
 || # This file may not be redistributed in whole or significant part. # ||
 || #################################################################### ||
@@ -224,8 +224,9 @@ class vB_PaidSubscriptionMethod_liqpay extends vB_PaidSubscriptionMethod
 
     $operation_xml = base64_encode($xml);
 
-		eval('$form[\'hiddenfields\'] .= "' . fetch_template('subscription_payment_liqpay') . '";');
-
+        $templater = vB_Template::create('subscription_payment_liqpay');
+				$templater->register('operation_xml', $operation_xml);
+        $form['hiddenfields'] .= $templater->render();
 		return $form;
 	}
 }

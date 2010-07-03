@@ -3,14 +3,14 @@
 <product productid="liqpay" active="1">
 	<title>LiqPay Payment Gateway</title>
 	<description>LiqPay.com Payment Gateway</description>
-	<version>0.3</version>
+	<version>0.4</version>
 	<url><![CDATA[http://www.vbulletin.org/forum/misc.php?do=producthelp&pid=liqpay]]></url>
 	<versioncheckurl><![CDATA[http://www.vbulletin.org/forum/misc.php?do=productcheck&pid=liqpay]]></versioncheckurl>
-	<apm_releasedate>1240174800</apm_releasedate>
-	<apm_author>Dmitry Titov, Vitaly Puzrin</apm_author>
-	<apm_relatedurl />
-	<apm_extrainfo />
-	<apm_extraedit />
+	<apm_releasedate></apm_releasedate>
+	<apm_author></apm_author>
+	<apm_relatedurl></apm_relatedurl>
+	<apm_extrainfo></apm_extrainfo>
+	<apm_extraedit></apm_extraedit>
 	<dependencies>
 	</dependencies>
 	<codes>
@@ -42,25 +42,29 @@ $db->show_errors();]]></uninstallcode>
 		</code>
 	</codes>
 	<templates>
-		<template name="subscription_payment_liqpay" templatetype="template" date="1237391626" username="Dimit" version=""><![CDATA[<input type="hidden" name="operation_xml" value="$operation_xml">
+		<template name="subscription_payment_liqpay" templatetype="template" date="1237391626" username="Dimit" version=""><![CDATA[<input type="hidden" name="operation_xml" value="{vb:raw operation_xml}">
 <input type="hidden" name="signature" value="$signature">]]></template>
-		<template name="subscription_payment_notice" templatetype="template" date="1237820757" username="Dimit" version=""><![CDATA[<table class="tborder" cellpadding="$stylevar[cellpadding]" cellspacing="$stylevar[cellspacing]" border="0" width="100%" align="center">
+		<template name="subscription_payment_notice" templatetype="template" date="1237820757" username="Dimit" version=""><![CDATA[<table class="tborder" cellpadding="{vb:stylevar cellpadding}" cellspacing="{vb:stylevar cellspacing}" border="0" width="100%" align="center">
 <tr>
-	<td class="tcat">$vbphrase[subscription_payment_notice_title]</td>
+	<td class="tcat">{vb:rawphrase subscription_payment_notice_title}</td>
 </tr>
 <tr>
-	<td class="alt1">$subscription_payment_notice</td>
+	<td class="alt1">{vb:raw subscription_payment_notice}</td>
 </tr>
 </table>]]></template>
 	</templates>
+	<stylevardfns>
+	</stylevardfns>
+	<stylevars>
+	</stylevars>
 	<plugins>
 		<plugin active="1" executionorder="5">
 			<title>Cache Templates</title>
 			<hookname>cache_templates</hookname>
 			<phpcode><![CDATA[if (THIS_SCRIPT == 'payments')
 {
-  $globaltemplates[] = 'subscription_payment_liqpay';
-  $globaltemplates[] = 'subscription_payment_notice';
+  $cache[] = 'subscription_payment_liqpay';
+  $cache[] = 'subscription_payment_notice';
 }]]></phpcode>
 		</plugin>
 		<plugin active="1" executionorder="5">
@@ -89,6 +93,7 @@ $vbphrase['liqpay_order_instructions'] =
   $api_class = 'vB_PaidSubscriptionMethod_liqpay';
   $apiobj    = new $api_class($vbulletin);
 
+  $templatename = '';
   if (!$apiobj->verify_payment()
       AND $apiobj->error_code == 'payment_verification_is_in_progress')
   {
@@ -96,12 +101,17 @@ $vbphrase['liqpay_order_instructions'] =
     $templatename = 'subscription_payment_notice';
     $subscription_payment_notice = $vbphrase['liqpay_subscription_payment_notice'];
   }
-  else
-  if ($apiobj->error_code == 'payment_failed')
+  elseif ($apiobj->error_code == 'payment_failed')
   {
     // show notice to user
     $templatename = 'subscription_payment_notice';
     $subscription_payment_notice = $vbphrase['liqpay_subscription_payment_failed'];
+  }
+
+  if (!empty($templatename))
+  {
+    $page_templater = vB_Template::create($templatename);
+	$page_templater->register('subscription_payment_notice', $subscription_payment_notice);
   }
   else
   {
