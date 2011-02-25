@@ -3,7 +3,7 @@
 <product productid="liqpay" active="1">
 	<title>LiqPay Payment Gateway</title>
 	<description>LiqPay.com Payment Gateway</description>
-	<version>0.4</version>
+	<version>0.5</version>
 	<url><![CDATA[http://www.vbulletin.org/forum/misc.php?do=producthelp&pid=liqpay]]></url>
 	<versioncheckurl><![CDATA[http://www.vbulletin.org/forum/misc.php?do=productcheck&pid=liqpay]]></versioncheckurl>
 	<apm_releasedate></apm_releasedate>

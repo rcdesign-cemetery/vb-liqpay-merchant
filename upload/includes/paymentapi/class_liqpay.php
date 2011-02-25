@@ -189,7 +189,7 @@ class vB_PaidSubscriptionMethod_liqpay extends vB_PaidSubscriptionMethod
 		$item = $hash;
 		$currency = strtoupper($currency);
 
-		$form['action'] = 'https://liqpay.com/?do=click_n_buy';
+		$form['action'] = 'https://liqpay.com/?do=clickNbuy';
 		$form['method'] = 'post';
 
 		// load settings into array so the template system can access them
